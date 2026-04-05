@@ -5,6 +5,7 @@ import pickle
 import os
 from PIL import Image
 from sklearn.ensemble import RandomForestClassifier
+import requests
 
 # -------------------------------
 # PAGE CONFIG
@@ -66,11 +67,24 @@ def load_model():
 model = load_model()
 
 # -------------------------------
-# FAKE WEATHER
+# REAL WEATHER (API)
 # -------------------------------
-def get_fake_weather(city):
-    np.random.seed(len(city))
-    return np.random.randint(20,40), np.random.randint(50,95), np.random.randint(0,20)
+API_KEY = "YOUR_API_KEY"
+
+def get_real_weather(city):
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
+    
+    response = requests.get(url)
+    data = response.json()
+
+    if data["cod"] != 200:
+        return None, None, None
+
+    temp = data["main"]["temp"]
+    humidity = data["main"]["humidity"]
+    rainfall = data.get("rain", {}).get("1h", 0)
+
+    return temp, humidity, rainfall
 
 # -------------------------------
 # SIDEBAR
@@ -90,7 +104,12 @@ col1, col2, col3 = st.columns(3)
 # -------------------------------
 if st.sidebar.button("🚀 Analyze Risk"):
 
-    temp, humidity, rainfall = get_fake_weather(city)
+    temp, humidity, rainfall = get_real_weather(city)
+
+    # SAFETY CHECK
+    if temp is None:
+        st.error("City not found or API error")
+        st.stop()
 
     # METRICS
     col1.metric("🌡 Temperature", f"{temp} °C")
