@@ -69,7 +69,7 @@ model = load_model()
 # -------------------------------
 # REAL WEATHER (API)
 # -------------------------------
-API_KEY = "YOUR_API_KEY"
+API_KEY = "9f244592efe26bbd55cf0f9ddaeb63d6"
 
 def get_real_weather(city):
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
